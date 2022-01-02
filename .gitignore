@@ -1,3 +1,8 @@
+# Object files
+.DS_Store
+.vscode
+.idea
+
 # Binaries for programs and plugins
 *.exe
 *.exe~
@@ -13,3 +18,25 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+robot_img.png
+robot_test.png
+
+examples/bitmap/test.png
+examples/bitmap/test2.png
+examples/bitmap/test.tif
+examples/bitmap/test31.tif
+examples/bitmap/tocbitmap.png
+examples/bitmap/teststr.png
+
+*.lib
+*.a
+# 
+!cdeps/mac/libpng.a
+!cdeps/mac/amd/libpng.a
+!cdeps/mac/m1/libpng.a
+# 
+# !cdeps/win32/libpng.a
+# !cdeps/win64/libpng.a
+!cdeps/win/amd/win32/libpng.a
+!cdeps/win/amd/win64/libpng.a
+!cdeps/win/arm/libpng.a
