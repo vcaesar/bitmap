@@ -108,14 +108,14 @@ func Tochar(bit robotgo.CBitmap) *C.char {
 	return strBit
 }
 
-func internalFind(bit, sbit C.MMBitmapRef, tolerance float64) (int, int) {
-	pos := C.find_bitmap(bit, sbit, C.float(tolerance))
+func internalFind(bit, sbit robotgo.CBitmap, tolerance float64) (int, int) {
+	pos := C.find_bitmap(ToThis(bit), ToThis(sbit), C.float(tolerance))
 	return int(pos.x), int(pos.y)
 }
 
-// Find find the bitmap's pos in source bitamp
+// Find find the bitmap's pos in source bitmap
 //
-//	bitmap.Find(bitmap, source_bitamp robotgo.CBitmap, tolerance float64)
+//	bitmap.Find(bitmap, source_bitmap robotgo.CBitmap, tolerance float64)
 //
 // 	|tolerance| should be in the range 0.0f - 1.0f, denoting how closely the
 // 	colors in the bitmaps need to match, with 0 being exact and 1 being any.
@@ -124,23 +124,24 @@ func internalFind(bit, sbit C.MMBitmapRef, tolerance float64) (int, int) {
 // use `defer robotgo.FreeBitmap(bit)` to free the bitmap
 func Find(bit robotgo.CBitmap, args ...interface{}) (int, int) {
 	var (
-		sbit      C.MMBitmapRef
+		sbit      robotgo.CBitmap
 		tolerance = 0.01
 	)
 
 	if len(args) > 0 && args[0] != nil {
-		sbit = ToThis(args[0].(robotgo.CBitmap))
+		sbit = args[0].(robotgo.CBitmap)
 	} else {
-		sbit = ToThis(robotgo.CaptureScreen())
+		sbit = robotgo.CaptureScreen()
 	}
 
 	if len(args) > 1 {
 		tolerance = args[1].(float64)
 	}
 
-	fx, fy := internalFind(ToThis(bit), sbit, tolerance)
+	fx, fy := internalFind(bit, sbit, tolerance)
+	// FreeBitmap(bit)
 	if len(args) <= 0 || (len(args) > 0 && args[0] == nil) {
-		robotgo.FreeBitmap(ToRobot(sbit))
+		robotgo.FreeBitmap(sbit)
 	}
 
 	return fx, fy
@@ -148,21 +149,21 @@ func Find(bit robotgo.CBitmap, args ...interface{}) (int, int) {
 
 // FindPic finding the image by path
 //
-//	bitmap.FindPic(path string, source_bitamp robotgo.CBitmap, tolerance float64)
+//	bitmap.FindPic(path string, source_bitmap robotgo.CBitmap, tolerance float64)
 //
 // This method only automatically free the internal bitmap,
 // use `defer robotgo.FreeBitmap(bit)` to free the bitmap
 func FindPic(path string, args ...interface{}) (int, int) {
 	var (
-		sbit      C.MMBitmapRef
+		sbit      robotgo.CBitmap
 		tolerance = 0.01
 	)
 
-	openbit := OpenC(path)
+	openbit := Open(path)
 	if len(args) > 0 && args[0] != nil {
-		sbit = ToThis(args[0].(robotgo.CBitmap))
+		sbit = args[0].(robotgo.CBitmap)
 	} else {
-		sbit = ToThis(robotgo.CaptureScreen())
+		sbit = robotgo.CaptureScreen()
 	}
 
 	if len(args) > 1 {
@@ -170,9 +171,9 @@ func FindPic(path string, args ...interface{}) (int, int) {
 	}
 
 	fx, fy := internalFind(openbit, sbit, tolerance)
-	robotgo.FreeBitmap(ToRobot(openbit))
+	robotgo.FreeBitmap(openbit)
 	if len(args) <= 0 || (len(args) > 0 && args[0] == nil) {
-		robotgo.FreeBitmap(ToRobot(sbit))
+		robotgo.FreeBitmap(sbit)
 	}
 
 	return fx, fy
@@ -186,15 +187,15 @@ func FreeMMPointArr(pointArray C.MMPointArrayRef) {
 // FindAll find the all bitmap
 func FindAll(bit robotgo.CBitmap, args ...interface{}) (posArr []robotgo.Point) {
 	var (
-		sbit      C.MMBitmapRef
+		sbit      robotgo.CBitmap
 		tolerance C.float = 0.01
 		lpos      C.MMPoint
 	)
 
 	if len(args) > 0 && args[0] != nil {
-		sbit = ToThis(args[0].(robotgo.CBitmap))
+		sbit = args[0].(robotgo.CBitmap)
 	} else {
-		sbit = ToThis(robotgo.CaptureScreen())
+		sbit = robotgo.CaptureScreen()
 	}
 
 	if len(args) > 1 {
@@ -214,10 +215,10 @@ func FindAll(bit robotgo.CBitmap, args ...interface{}) (posArr []robotgo.Point) 
 		lpos.y = C.size_t(args[3].(int))
 	}
 
-	pos := C.find_every_bitmap(ToThis(bit), sbit, tolerance, &lpos)
+	pos := C.find_every_bitmap(ToThis(bit), ToThis(sbit), tolerance, &lpos)
 	// FreeBitmap(bit)
 	if len(args) <= 0 || (len(args) > 0 && args[0] == nil) {
-		robotgo.FreeBitmap(ToRobot(sbit))
+		robotgo.FreeBitmap(sbit)
 	}
 	if pos == nil {
 		return
@@ -238,28 +239,28 @@ func FindAll(bit robotgo.CBitmap, args ...interface{}) (posArr []robotgo.Point) 
 }
 
 // Count count of the bitmap
-func Count(bitmap, sourceBitamp robotgo.CBitmap, args ...float32) int {
+func Count(bit, sourceBitmap robotgo.CBitmap, args ...float32) int {
 	var tolerance C.float = 0.01
 	if len(args) > 0 {
 		tolerance = C.float(args[0])
 	}
 
-	count := C.count_of_bitmap(ToThis(bitmap), ToThis(sourceBitamp), tolerance)
+	count := C.count_of_bitmap(ToThis(bit), ToThis(sourceBitmap), tolerance)
 	return int(count)
 }
 
 // Click find the bitmap and click
-func Click(bitmap robotgo.CBitmap, args ...interface{}) {
-	x, y := Find(bitmap)
+func Click(bit robotgo.CBitmap, args ...interface{}) {
+	x, y := Find(bit)
 	robotgo.MovesClick(x, y, args...)
 }
 
 // PointInBounds bitmap point in bounds
-func PointInBounds(bitmap robotgo.CBitmap, x, y int) bool {
+func PointInBounds(bit robotgo.CBitmap, x, y int) bool {
 	var point C.MMPoint
 	point.x = C.size_t(x)
 	point.y = C.size_t(y)
-	cbool := C.point_in_bounds(ToThis(bitmap), point)
+	cbool := C.point_in_bounds(ToThis(bit), point)
 
 	return bool(cbool)
 }
@@ -299,14 +300,13 @@ func FromStr(str string) C.MMBitmapRef {
 //
 // bitmap.Save(bitmap robotgo.CBitmap, path string, type int)
 func Save(bit robotgo.CBitmap, gpath string, args ...int) string {
-	bitmap := ToThis(bit)
 	var mtype C.uint16_t = 1
 	if len(args) > 0 {
 		mtype = C.uint16_t(args[0])
 	}
 
 	path := C.CString(gpath)
-	saveBit := C.bitmap_save(bitmap, path, mtype)
+	saveBit := C.bitmap_save(ToThis(bit), path, mtype)
 	C.free(unsafe.Pointer(path))
 
 	return C.GoString(saveBit)
@@ -333,8 +333,8 @@ func Convert(opath, spath string, args ...int) string {
 		mtype = args[0]
 	}
 
-	bitmap := Open(opath)
-	return Save(bitmap, spath, mtype)
+	bit := Open(opath)
+	return Save(bit, spath, mtype)
 }
 
 // FreeBitmapArr free and dealloc the C bitmap array
@@ -352,31 +352,31 @@ func FreeArrC(bit ...C.MMBitmapRef) {
 }
 
 // Read returns false and sets error if |bitmap| is NULL
-func Read(bitmap robotgo.CBitmap) bool {
-	abool := C.bitmap_ready(ToThis(bitmap))
+func Read(bit robotgo.CBitmap) bool {
+	abool := C.bitmap_ready(ToThis(bit))
 	return bool(abool)
 }
 
 // CopyToPB copy bitmap to pasteboard
-func CopyToPB(bitmap robotgo.CBitmap) bool {
-	abool := C.bitmap_copy_to_pboard(ToThis(bitmap))
+func CopyToPB(bit robotgo.CBitmap) bool {
+	abool := C.bitmap_copy_to_pboard(ToThis(bit))
 	return bool(abool)
 }
 
-// DeepCopyC deep copy bitmap to new bitmap
-func DeepCopyC(bitmap C.MMBitmapRef) C.MMBitmapRef {
-	bit := C.bitmap_deepcopy(bitmap)
-	return bit
+// DeepCopyC deep copy bitmap to new bitamp
+func DeepCopyC(bit C.MMBitmapRef) C.MMBitmapRef {
+	bit1 := C.bitmap_deepcopy(bit)
+	return bit1
 }
 
-// DeepCopy deep copy bitmap to new bitamp
+// DeepCopy deep copy bitmap to new bitmap
 func DeepCopy(bit robotgo.CBitmap) robotgo.CBitmap {
 	return ToRobot(DeepCopyC(ToThis(bit)))
 }
 
 // GetColor get the bitmap color
-func GetColor(bitmap robotgo.CBitmap, x, y int) C.MMRGBHex {
-	color := C.bitmap_get_color(ToThis(bitmap), C.size_t(x), C.size_t(y))
+func GetColor(bit robotgo.CBitmap, x, y int) C.MMRGBHex {
+	color := C.bitmap_get_color(ToThis(bit), C.size_t(x), C.size_t(y))
 	return color
 }
 
@@ -386,8 +386,8 @@ func ToRHex(hex C.MMRGBHex) robotgo.CHex {
 }
 
 // GetColors get bitmap color retrun string
-func GetColors(bitmap robotgo.CBitmap, x, y int) string {
-	clo := GetColor(bitmap, x, y)
+func GetColors(bit robotgo.CBitmap, x, y int) string {
+	clo := GetColor(bit, x, y)
 	return robotgo.PadHexs(ToRHex(clo))
 }
 
@@ -397,22 +397,22 @@ func GetColors(bitmap robotgo.CBitmap, x, y int) string {
 func FindColor(color robotgo.CHex, args ...interface{}) (int, int) {
 	var (
 		tolerance C.float = 0.01
-		bitmap    C.MMBitmapRef
+		bit       robotgo.CBitmap
 	)
 
 	if len(args) > 0 && args[0] != nil {
-		bitmap = ToThis(args[0].(robotgo.CBitmap))
+		bit = args[0].(robotgo.CBitmap)
 	} else {
-		bitmap = ToThis(robotgo.CaptureScreen())
+		bit = robotgo.CaptureScreen()
 	}
 
 	if len(args) > 1 {
 		tolerance = C.float(args[1].(float64))
 	}
 
-	pos := C.bitmap_find_color(bitmap, C.MMRGBHex(color), tolerance)
+	pos := C.bitmap_find_color(ToThis(bit), C.MMRGBHex(color), tolerance)
 	if len(args) <= 0 || (len(args) > 0 && args[0] == nil) {
-		robotgo.FreeBitmap(ToRobot(bitmap))
+		robotgo.FreeBitmap(bit)
 	}
 
 	x := int(pos.x)
@@ -429,9 +429,9 @@ func FindColorCS(color robotgo.CHex, x, y, w, h int, args ...float64) (int, int)
 		tolerance = args[0]
 	}
 
-	bitmap := robotgo.CaptureScreen(x, y, w, h)
-	rx, ry := FindColor(color, bitmap, tolerance)
-	robotgo.FreeBitmap(bitmap)
+	bit := robotgo.CaptureScreen(x, y, w, h)
+	rx, ry := FindColor(color, bit, tolerance)
+	robotgo.FreeBitmap(bit)
 
 	return rx, ry
 }
@@ -439,16 +439,16 @@ func FindColorCS(color robotgo.CHex, x, y, w, h int, args ...float64) (int, int)
 // FindAllColor find the all color
 func FindAllColor(color robotgo.CHex, args ...interface{}) (posArr []robotgo.Point) {
 	var (
-		// bitmap robotgo.CBitmap
-		bitmap    C.MMBitmapRef
+		bit robotgo.CBitmap
+		// bitmap    C.MMBitmapRef
 		tolerance C.float = 0.01
 		lpos      C.MMPoint
 	)
 
 	if len(args) > 0 && args[0] != nil {
-		bitmap = ToThis(args[0].(robotgo.CBitmap))
+		bit = args[0].(robotgo.CBitmap)
 	} else {
-		bitmap = ToThis(robotgo.CaptureScreen())
+		bit = robotgo.CaptureScreen()
 	}
 
 	if len(args) > 1 {
@@ -468,9 +468,9 @@ func FindAllColor(color robotgo.CHex, args ...interface{}) (posArr []robotgo.Poi
 		lpos.y = C.size_t(args[3].(int))
 	}
 
-	pos := C.bitmap_find_every_color(bitmap, C.MMRGBHex(color), tolerance, &lpos)
+	pos := C.bitmap_find_every_color(ToThis(bit), C.MMRGBHex(color), tolerance, &lpos)
 	if len(args) <= 0 || (len(args) > 0 && args[0] == nil) {
-		robotgo.FreeBitmap(ToRobot(bitmap))
+		robotgo.FreeBitmap(bit)
 	}
 
 	if pos == nil {
@@ -495,22 +495,22 @@ func FindAllColor(color robotgo.CHex, args ...interface{}) (posArr []robotgo.Poi
 func CountColor(color robotgo.CHex, args ...interface{}) int {
 	var (
 		tolerance C.float = 0.01
-		bitmap    C.MMBitmapRef
+		bit       robotgo.CBitmap
 	)
 
 	if len(args) > 0 && args[0] != nil {
-		bitmap = ToThis(args[0].(robotgo.CBitmap))
+		bit = args[0].(robotgo.CBitmap)
 	} else {
-		bitmap = ToThis(robotgo.CaptureScreen())
+		bit = robotgo.CaptureScreen()
 	}
 
 	if len(args) > 1 {
 		tolerance = C.float(args[1].(float64))
 	}
 
-	count := C.bitmap_count_of_color(bitmap, C.MMRGBHex(color), tolerance)
+	count := C.bitmap_count_of_color(ToThis(bit), C.MMRGBHex(color), tolerance)
 	if len(args) <= 0 || (len(args) > 0 && args[0] == nil) {
-		robotgo.FreeBitmap(ToRobot(bitmap))
+		robotgo.FreeBitmap(bit)
 	}
 
 	return int(count)
@@ -524,21 +524,21 @@ func CountColorCS(color robotgo.CHex, x, y, w, h int, args ...float64) int {
 		tolerance = args[0]
 	}
 
-	bitmap := robotgo.CaptureScreen(x, y, w, h)
-	rx := CountColor(color, bitmap, tolerance)
-	robotgo.FreeBitmap(bitmap)
+	bit := robotgo.CaptureScreen(x, y, w, h)
+	rx := CountColor(color, bit, tolerance)
+	robotgo.FreeBitmap(bit)
 
 	return rx
 }
 
-// GetImgSize get the image size
-func GetImgSize(imgPath string) (int, int) {
-	bitmap := Open(imgPath)
-	gbit := robotgo.ToBitmap(bitmap)
+// GetSize get the image size
+func GetSize(imgPath string) (int, int) {
+	bit := Open(imgPath)
+	gbit := robotgo.ToBitmap(bit)
 
 	w := gbit.Width / 2
 	h := gbit.Height / 2
-	robotgo.FreeBitmap(bitmap)
+	robotgo.FreeBitmap(bit)
 
 	return w, h
 }
