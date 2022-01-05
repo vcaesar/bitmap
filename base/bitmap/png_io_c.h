@@ -2,11 +2,11 @@
 #include "../os.h"
 // #include "libpng/png.c"
 #if defined(IS_MACOSX)
-	#include "../cdeps/mac/png.h"
+	#include "../../cdeps/mac/png.h"
 #elif defined(USE_X11)
 	#include <png.h>
 #elif defined(IS_WINDOWS)
-	#include "../cdeps/win/png.h"
+	#include "../../cdeps/win/png.h"
 #endif
 
 #include <stdio.h> /* fopen() */
