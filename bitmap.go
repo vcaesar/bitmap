@@ -18,7 +18,8 @@ package bitmap
 #cgo darwin,amd64 LDFLAGS:-L${SRCDIR}/cdeps/mac/amd -lpng -lz
 #cgo darwin,arm64 LDFLAGS:-L${SRCDIR}/cdeps/mac/m1 -lpng -lz
 //
-#cgo linux LDFLAGS: -L/usr/src -lpng -lz
+// #cgo linux CFLAGS: -I/usr/src
+#cgo linux LDFLAGS: -L/usr/src -lm -lpng -lz
 //
 #cgo windows,amd64 LDFLAGS: -L${SRCDIR}/cdeps/win/amd/win64 -lpng -lz
 #cgo windows,386 LDFLAGS: -L${SRCDIR}/cdeps/win/amd/win32 -lpng -lz
