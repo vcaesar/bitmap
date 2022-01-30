@@ -30,6 +30,7 @@ package bitmap
 import "C"
 
 import (
+	"errors"
 	"reflect"
 	"unsafe"
 
@@ -47,7 +48,7 @@ import (
 */
 
 // SaveCapture capture the screen and save to path
-func SaveCapture(spath string, args ...int) string {
+func SaveCapture(spath string, args ...int) error {
 	bit := robotgo.CaptureScreen(args...)
 
 	err := Save(bit, spath)
@@ -297,10 +298,18 @@ func FromStr(str string) C.MMBitmapRef {
 	return bit
 }
 
+func toErr(str *C.char) error {
+	gstr := C.GoString(str)
+	if gstr == "" {
+		return nil
+	}
+	return errors.New(gstr)
+}
+
 // Save save the bitmap to image
 //
 // bitmap.Save(bitmap robotgo.CBitmap, path string, type int)
-func Save(bit robotgo.CBitmap, gpath string, args ...int) string {
+func Save(bit robotgo.CBitmap, gpath string, args ...int) error {
 	var mtype C.uint16_t = 1
 	if len(args) > 0 {
 		mtype = C.uint16_t(args[0])
@@ -310,7 +319,7 @@ func Save(bit robotgo.CBitmap, gpath string, args ...int) string {
 	saveBit := C.bitmap_save(ToThis(bit), path, mtype)
 	C.free(unsafe.Pointer(path))
 
-	return C.GoString(saveBit)
+	return toErr(saveBit)
 }
 
 // GetPortion get bitmap portion
@@ -328,7 +337,7 @@ func GetPortion(bit robotgo.CBitmap, x, y, w, h int) robotgo.CBitmap {
 // Convert convert the bitmap
 //
 // bitmap.Convert(opath, spath string, type int)
-func Convert(opath, spath string, args ...int) string {
+func Convert(opath, spath string, args ...int) error {
 	var mtype = 1
 	if len(args) > 0 {
 		mtype = args[0]
