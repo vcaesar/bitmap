@@ -1,6 +1,6 @@
 #include "bmp_io.h"
 #include "../os.h"
-#include "../endian.h"
+#include "endian.h"
 #include <stdio.h> /* fopen() */
 #include <string.h> /* memcpy() */
 
