@@ -2,7 +2,7 @@
 #ifndef ENDIAN_H
 #define ENDIAN_H
 
-#include "os.h"
+#include "../os.h"
 
 /*
  * (Mostly) cross-platform endian definitions and bit swapping macros.
