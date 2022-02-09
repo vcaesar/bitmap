@@ -2,14 +2,9 @@
 #include <assert.h>
 #include <string.h>
 
-MMBitmapRef createMMBitmap(
-	uint8_t *buffer,
-    size_t width,
-    size_t height,
-    size_t bytewidth,
-    uint8_t bitsPerPixel,
-    uint8_t bytesPerPixel
-){
+MMBitmapRef createMMBitmap(uint8_t *buffer, int32_t width, int32_t height, 
+	int32_t bytewidth, uint8_t bitsPerPixel, uint8_t bytesPerPixel
+) {
 	MMBitmapRef bitmap = malloc(sizeof(MMBitmap));
 	if (bitmap == NULL) return NULL;
 
@@ -30,17 +25,13 @@ MMBitmapRef copyMMBitmap(MMBitmapRef bitmap) {
 	if (bitmap->imageBuffer != NULL) {
 		const size_t bufsize = bitmap->height * bitmap->bytewidth;
 		copiedBuf = malloc(bufsize);
-		if (copiedBuf == NULL) return NULL;
+		if (copiedBuf == NULL) { return NULL; }
 
 		memcpy(copiedBuf, bitmap->imageBuffer, bufsize);
 	}
 
-	return createMMBitmap(copiedBuf,
-	                      bitmap->width,
-	                      bitmap->height,
-	                      bitmap->bytewidth,
-	                      bitmap->bitsPerPixel,
-	                      bitmap->bytesPerPixel);
+	return createMMBitmap(copiedBuf, bitmap->width, bitmap->height,
+	                      bitmap->bytewidth, bitmap->bitsPerPixel, bitmap->bytesPerPixel);
 }
 
 MMBitmapRef copyMMBitmapFromPortion(MMBitmapRef source, MMRect rect) {
@@ -58,15 +49,11 @@ MMBitmapRef copyMMBitmapFromPortion(MMBitmapRef source, MMRect rect) {
 		assert((bufsize + offset) <= (source->bytewidth * source->height));
 
 		copiedBuf = malloc(bufsize);
-		if (copiedBuf == NULL) return NULL;
+		if (copiedBuf == NULL) { return NULL; }
 
 		memcpy(copiedBuf, source->imageBuffer + offset, bufsize);
 
-		return createMMBitmap(copiedBuf,
-		                      rect.size.width,
-		                      rect.size.height,
-		                      source->bytewidth,
-		                      source->bitsPerPixel,
-		                      source->bytesPerPixel);
+		return createMMBitmap(copiedBuf, rect.size.width, rect.size.height,
+		                      source->bytewidth, source->bitsPerPixel, source->bytesPerPixel);
 	}
 }

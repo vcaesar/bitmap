@@ -70,9 +70,9 @@ func ToRobot(bit C.MMBitmapRef) robotgo.CBitmap {
 func ToC(bit robotgo.Bitmap) C.MMBitmapRef {
 	cbitmap := C.createMMBitmap(
 		(*C.uint8_t)(bit.ImgBuf),
-		C.size_t(bit.Width),
-		C.size_t(bit.Height),
-		C.size_t(bit.Bytewidth),
+		C.int32_t(bit.Width),
+		C.int32_t(bit.Height),
+		C.int32_t(bit.Bytewidth),
 		C.uint8_t(bit.BitsPixel),
 		C.uint8_t(bit.BytesPerPixel),
 	)
@@ -289,13 +289,18 @@ func Open(path string, args ...int) robotgo.CBitmap {
 	return ToRobot(OpenC(path, args...))
 }
 
-// FromStr bitmap from string
-func FromStr(str string) C.MMBitmapRef {
+// FromStrC bitmap from string
+func FromStrC(str string) C.MMBitmapRef {
 	cs := C.CString(str)
 	bit := C.bitmap_from_string(cs)
 	C.free(unsafe.Pointer(cs))
 
 	return bit
+}
+
+// FromStr bitmap from string
+func FromStr(str string) robotgo.CBitmap {
+	return ToRobot(FromStrC(str))
 }
 
 func toErr(str *C.char) error {

@@ -17,11 +17,9 @@
 #define STR_BITS_PER_PIXEL 24
 #define STR_BYTES_PER_PIXEL ((STR_BITS_PER_PIXEL) / 8)
 
-#define MAX_DIMENSION_LEN 5 /* Maximum length for [width] or [height]
-                             * in string. */
+#define MAX_DIMENSION_LEN 5 /* Maximum length for [width] or [height] in string. */
 
-const char *MMBitmapStringErrorString(MMBMPStringError err)
-{
+const char *MMBitmapStringErrorString(MMBMPStringError err) {
 	switch (err) {
 		case kMMBMPStringInvalidHeaderError:
 			return "Invalid header for string";
@@ -46,19 +44,14 @@ const char *MMBitmapStringErrorString(MMBMPStringError err)
  * |len| is set to the length of [width] + the length of [height] + 2,
  * and true is returned; otherwise, false is returned.
  */
-static bool getSizeFromString(const uint8_t *buf, size_t buflen,
-                              size_t *width, size_t *height,
-                              size_t *len);
+static bool getSizeFromString(const uint8_t *buf, size_t buflen, size_t *width, size_t *height, size_t *len);
 
-MMBitmapRef createMMBitmapFromString(const uint8_t *buffer, size_t buflen,
-                                     MMBMPStringError *err)
-{
+MMBitmapRef createMMBitmapFromString(const uint8_t *buffer, size_t buflen, MMBMPStringError *err) {
 	uint8_t *decoded, *decompressed;
 	size_t width, height;
 	size_t len, bytewidth;
 
-	if (*buffer++ != 'b' || !getSizeFromString(buffer, --buflen,
-	                                           &width, &height, &len)) {
+	if (*buffer++ != 'b' || !getSizeFromString(buffer, --buflen, &width, &height, &len)) {
 		if (err != NULL) *err = kMMBMPStringInvalidHeaderError;
 		return NULL;
 	}
@@ -96,8 +89,7 @@ MMBitmapRef createMMBitmapFromString(const uint8_t *buffer, size_t buflen,
  * Caller is responsible for free()'ing returned buffer. */
 static uint8_t *createRawBitmapData(MMBitmapRef bitmap);
 
-uint8_t *createStringFromMMBitmap(MMBitmapRef bitmap, MMBMPStringError *err)
-{
+uint8_t *createStringFromMMBitmap(MMBitmapRef bitmap, MMBMPStringError *err) {
 	uint8_t *raw, *compressed;
 	uint8_t *ret, *encoded;
 	size_t len, retlen;
@@ -110,10 +102,7 @@ uint8_t *createStringFromMMBitmap(MMBitmapRef bitmap, MMBMPStringError *err)
 		return NULL;
 	}
 
-	compressed = zlib_compress(raw,
-	                           bitmap->width * bitmap->height *
-	                           STR_BYTES_PER_PIXEL,
-	                           9, &len);
+	compressed = zlib_compress(raw, bitmap->width * bitmap->height * STR_BYTES_PER_PIXEL, 9, &len);
 	free(raw);
 	if (compressed == NULL) {
 		if (err != NULL) *err = kMMBMPStringCompressError;
@@ -130,20 +119,16 @@ uint8_t *createStringFromMMBitmap(MMBitmapRef bitmap, MMBMPStringError *err)
 	retlen += 3 + (MAX_DIMENSION_LEN * 2);
 	ret = calloc(sizeof(char), (retlen + 1));
 	snprintf((char *)ret, retlen, "b%lu,%lu,%s", (unsigned long)bitmap->width,
-	                                             (unsigned long)bitmap->height,
-												 encoded);
+	                                             (unsigned long)bitmap->height, encoded);
 	ret[retlen] = '\0';
 	free(encoded);
 	return ret;
 }
 
-static uint32_t parseDimension(const uint8_t *buf, size_t buflen,
-                               size_t *numlen);
+static uint32_t parseDimension(const uint8_t *buf, size_t buflen, size_t *numlen);
 
-static bool getSizeFromString(const uint8_t *buf, size_t buflen,
-                              size_t *width, size_t *height,
-                              size_t *len)
-{
+static bool getSizeFromString(const uint8_t *buf, size_t buflen, 
+								size_t *width, size_t *height, size_t *len) {
 	size_t numlen;
 	assert(buf != NULL);
 	assert(width != NULL);
@@ -164,8 +149,7 @@ static bool getSizeFromString(const uint8_t *buf, size_t buflen,
 
 /* Parses one dimension from string as described in getSizeFromString().
  * Returns dimension on success, or 0 on error. */
-static uint32_t parseDimension(const uint8_t *buf,
-							   size_t buflen, size_t *numlen){
+static uint32_t parseDimension(const uint8_t *buf, size_t buflen, size_t *numlen) {
 	char num[MAX_DIMENSION_LEN + 1];
 	size_t i;
 	// ssize_t len; 
@@ -184,8 +168,7 @@ static uint32_t parseDimension(const uint8_t *buf,
 	return (uint32_t)atoi(num);
 }
 
-static uint8_t *createRawBitmapData(MMBitmapRef bitmap)
-{
+static uint8_t *createRawBitmapData(MMBitmapRef bitmap) {
 	uint8_t *raw = calloc(STR_BYTES_PER_PIXEL, bitmap->width * bitmap->height);
 	size_t y;
 
