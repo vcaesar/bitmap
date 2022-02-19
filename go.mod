@@ -3,7 +3,7 @@ module github.com/vcaesar/bitmap
 go 1.17
 
 require (
-	github.com/go-vgo/robotgo v1.0.0-beta4.1
+	github.com/go-vgo/robotgo v1.0.0-beta5
 	github.com/vcaesar/tt v0.20.0
 )
 
