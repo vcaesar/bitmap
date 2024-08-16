@@ -4,7 +4,7 @@ jobs:
   build:
     docker:
       # using custom image, see .circleci/images/primary/Dockerfile
-      - image: golang:1.21.0
+      - image: golang:1.23.0
     working_directory: /gopath/src/github.com/vcaesar/bitmap
     steps:
       - checkout
