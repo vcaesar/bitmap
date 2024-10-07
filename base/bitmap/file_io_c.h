@@ -7,10 +7,9 @@
 #include <ctype.h> /* For tolower() */
 
 const char *getExtension(const char *fname, size_t len){
-	if (fname == NULL || len <= 0) return NULL;
+	if (fname == NULL || len <= 0) { return NULL; }
 
-	while (--len > 0 && fname[len] != '.' && fname[len] != '\0')
-		;
+	while (--len > 0 && fname[len] != '.' && fname[len] != '\0');
 
 	return fname + len + 1;
 }
