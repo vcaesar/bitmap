@@ -5,7 +5,7 @@ go 1.23.0
 toolchain go1.24.1
 
 require (
-	github.com/go-vgo/robotgo v0.110.6
+	github.com/go-vgo/robotgo v0.110.7
 	github.com/vcaesar/tt v0.20.1
 )
 
