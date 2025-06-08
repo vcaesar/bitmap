@@ -3,9 +3,9 @@
 // https://github.com/go-vgo/robotgo/blob/master/LICENSE
 //
 // Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
-// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
-// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
-// option. This file may not be copied, modified, or distributed
+// http://www.apache.org/licenses/LICENSE-2.0>
+//
+// This file may not be copied, modified, or distributed
 // except according to those terms.
 //
 
@@ -119,8 +119,8 @@ func internalFind(bit, sbit robotgo.CBitmap, tolerance float64) (int, int) {
 //
 //	bitmap.Find(bitmap, source_bitmap robotgo.CBitmap, tolerance float64)
 //
-// 	|tolerance| should be in the range 0.0f - 1.0f, denoting how closely the
-// 	colors in the bitmaps need to match, with 0 being exact and 1 being any.
+//	|tolerance| should be in the range 0.0f - 1.0f, denoting how closely the
+//	colors in the bitmaps need to match, with 0 being exact and 1 being any.
 //
 // This method only automatically free the internal bitmap,
 // use `defer robotgo.FreeBitmap(bit)` to free the bitmap
